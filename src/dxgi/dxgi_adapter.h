@@ -79,6 +79,17 @@ namespace dxvk {
     
     UINT64            m_memReservation[2] = { 0, 0 };
     
+    struct MonitorEnumInfo {
+      UINT      iMonitorId;
+      HMONITOR  oMonitor;
+    };
+    
+    static BOOL CALLBACK MonitorEnumProc(
+            HMONITOR                  hmon,
+            HDC                       hdc,
+            LPRECT                    rect,
+            LPARAM                    lp);
+    
   };
 
 }
