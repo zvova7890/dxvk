@@ -1,5 +1,6 @@
 #include <cstring>
 
+#include "d3d11_binding.h"
 #include "d3d11_context.h"
 #include "d3d11_device.h"
 #include "d3d11_query.h"
@@ -21,7 +22,199 @@ namespace dxvk {
     m_csFlags   (CsFlags),
     m_csChunk   (AllocCsChunk()),
     m_cmdData   (nullptr) {
+    m_bindSamplers[0] = &BindSamplers<1>;
+    m_bindSamplers[1] = &BindSamplers<2>;
+    m_bindSamplers[2] = &BindSamplers<3>;
+    m_bindSamplers[3] = &BindSamplers<4>;
+    m_bindSamplers[4] = &BindSamplers<5>;
+    m_bindSamplers[5] = &BindSamplers<6>;
+    m_bindSamplers[6] = &BindSamplers<7>;
+    m_bindSamplers[7] = &BindSamplers<8>;
+    m_bindSamplers[8] = &BindSamplers<9>;
+    m_bindSamplers[9] = &BindSamplers<10>;
+    m_bindSamplers[10] = &BindSamplers<11>;
+    m_bindSamplers[11] = &BindSamplers<12>;
+    m_bindSamplers[12] = &BindSamplers<13>;
+    m_bindSamplers[13] = &BindSamplers<14>;
+    m_bindSamplers[14] = &BindSamplers<15>;
+    m_bindSamplers[15] = &BindSamplers<16>;
 
+    m_bindConstantBuffers[0] = &BindConstantBuffers<1>;
+    m_bindConstantBuffers[1] = &BindConstantBuffers<2>;
+    m_bindConstantBuffers[2] = &BindConstantBuffers<3>;
+    m_bindConstantBuffers[3] = &BindConstantBuffers<4>;
+    m_bindConstantBuffers[4] = &BindConstantBuffers<5>;
+    m_bindConstantBuffers[5] = &BindConstantBuffers<6>;
+    m_bindConstantBuffers[6] = &BindConstantBuffers<7>;
+    m_bindConstantBuffers[7] = &BindConstantBuffers<8>;
+    m_bindConstantBuffers[8] = &BindConstantBuffers<9>;
+    m_bindConstantBuffers[9] = &BindConstantBuffers<10>;
+    m_bindConstantBuffers[10] = &BindConstantBuffers<11>;
+    m_bindConstantBuffers[11] = &BindConstantBuffers<12>;
+    m_bindConstantBuffers[12] = &BindConstantBuffers<13>;
+    m_bindConstantBuffers[13] = &BindConstantBuffers<14>;
+
+    m_bindShaderResources[0] = &BindShaderResources<1>;
+    m_bindShaderResources[1] = &BindShaderResources<2>;
+    m_bindShaderResources[2] = &BindShaderResources<3>;
+    m_bindShaderResources[3] = &BindShaderResources<4>;
+    m_bindShaderResources[4] = &BindShaderResources<5>;
+    m_bindShaderResources[5] = &BindShaderResources<6>;
+    m_bindShaderResources[6] = &BindShaderResources<7>;
+    m_bindShaderResources[7] = &BindShaderResources<8>;
+    m_bindShaderResources[8] = &BindShaderResources<9>;
+    m_bindShaderResources[9] = &BindShaderResources<10>;
+    m_bindShaderResources[10] = &BindShaderResources<11>;
+    m_bindShaderResources[11] = &BindShaderResources<12>;
+    m_bindShaderResources[12] = &BindShaderResources<13>;
+    m_bindShaderResources[13] = &BindShaderResources<14>;
+    m_bindShaderResources[14] = &BindShaderResources<15>;
+    m_bindShaderResources[15] = &BindShaderResources<16>;
+    m_bindShaderResources[16] = &BindShaderResources<17>;
+    m_bindShaderResources[17] = &BindShaderResources<18>;
+    m_bindShaderResources[18] = &BindShaderResources<19>;
+    m_bindShaderResources[19] = &BindShaderResources<20>;
+    m_bindShaderResources[20] = &BindShaderResources<21>;
+    m_bindShaderResources[21] = &BindShaderResources<22>;
+    m_bindShaderResources[22] = &BindShaderResources<23>;
+    m_bindShaderResources[23] = &BindShaderResources<24>;
+    m_bindShaderResources[24] = &BindShaderResources<25>;
+    m_bindShaderResources[25] = &BindShaderResources<26>;
+    m_bindShaderResources[26] = &BindShaderResources<27>;
+    m_bindShaderResources[27] = &BindShaderResources<28>;
+    m_bindShaderResources[28] = &BindShaderResources<29>;
+    m_bindShaderResources[29] = &BindShaderResources<30>;
+    m_bindShaderResources[30] = &BindShaderResources<31>;
+    m_bindShaderResources[31] = &BindShaderResources<32>;
+    m_bindShaderResources[32] = &BindShaderResources<33>;
+    m_bindShaderResources[33] = &BindShaderResources<34>;
+    m_bindShaderResources[34] = &BindShaderResources<35>;
+    m_bindShaderResources[35] = &BindShaderResources<36>;
+    m_bindShaderResources[36] = &BindShaderResources<37>;
+    m_bindShaderResources[37] = &BindShaderResources<38>;
+    m_bindShaderResources[38] = &BindShaderResources<39>;
+    m_bindShaderResources[39] = &BindShaderResources<40>;
+    m_bindShaderResources[40] = &BindShaderResources<41>;
+    m_bindShaderResources[41] = &BindShaderResources<42>;
+    m_bindShaderResources[42] = &BindShaderResources<43>;
+    m_bindShaderResources[43] = &BindShaderResources<44>;
+    m_bindShaderResources[44] = &BindShaderResources<45>;
+    m_bindShaderResources[45] = &BindShaderResources<46>;
+    m_bindShaderResources[46] = &BindShaderResources<47>;
+    m_bindShaderResources[47] = &BindShaderResources<48>;
+    m_bindShaderResources[48] = &BindShaderResources<49>;
+    m_bindShaderResources[49] = &BindShaderResources<50>;
+    m_bindShaderResources[50] = &BindShaderResources<51>;
+    m_bindShaderResources[51] = &BindShaderResources<52>;
+    m_bindShaderResources[52] = &BindShaderResources<53>;
+    m_bindShaderResources[53] = &BindShaderResources<54>;
+    m_bindShaderResources[54] = &BindShaderResources<55>;
+    m_bindShaderResources[55] = &BindShaderResources<56>;
+    m_bindShaderResources[56] = &BindShaderResources<57>;
+    m_bindShaderResources[57] = &BindShaderResources<58>;
+    m_bindShaderResources[58] = &BindShaderResources<59>;
+    m_bindShaderResources[59] = &BindShaderResources<60>;
+    m_bindShaderResources[60] = &BindShaderResources<61>;
+    m_bindShaderResources[61] = &BindShaderResources<62>;
+    m_bindShaderResources[62] = &BindShaderResources<63>;
+    m_bindShaderResources[63] = &BindShaderResources<64>;
+    m_bindShaderResources[64] = &BindShaderResources<65>;
+    m_bindShaderResources[65] = &BindShaderResources<66>;
+    m_bindShaderResources[66] = &BindShaderResources<67>;
+    m_bindShaderResources[67] = &BindShaderResources<68>;
+    m_bindShaderResources[68] = &BindShaderResources<69>;
+    m_bindShaderResources[69] = &BindShaderResources<70>;
+    m_bindShaderResources[70] = &BindShaderResources<71>;
+    m_bindShaderResources[71] = &BindShaderResources<72>;
+    m_bindShaderResources[72] = &BindShaderResources<73>;
+    m_bindShaderResources[73] = &BindShaderResources<74>;
+    m_bindShaderResources[74] = &BindShaderResources<75>;
+    m_bindShaderResources[75] = &BindShaderResources<76>;
+    m_bindShaderResources[76] = &BindShaderResources<77>;
+    m_bindShaderResources[77] = &BindShaderResources<78>;
+    m_bindShaderResources[78] = &BindShaderResources<79>;
+    m_bindShaderResources[79] = &BindShaderResources<80>;
+    m_bindShaderResources[80] = &BindShaderResources<81>;
+    m_bindShaderResources[81] = &BindShaderResources<82>;
+    m_bindShaderResources[82] = &BindShaderResources<83>;
+    m_bindShaderResources[83] = &BindShaderResources<84>;
+    m_bindShaderResources[84] = &BindShaderResources<85>;
+    m_bindShaderResources[85] = &BindShaderResources<86>;
+    m_bindShaderResources[86] = &BindShaderResources<87>;
+    m_bindShaderResources[87] = &BindShaderResources<88>;
+    m_bindShaderResources[88] = &BindShaderResources<89>;
+    m_bindShaderResources[89] = &BindShaderResources<90>;
+    m_bindShaderResources[90] = &BindShaderResources<91>;
+    m_bindShaderResources[91] = &BindShaderResources<92>;
+    m_bindShaderResources[92] = &BindShaderResources<93>;
+    m_bindShaderResources[93] = &BindShaderResources<94>;
+    m_bindShaderResources[94] = &BindShaderResources<95>;
+    m_bindShaderResources[95] = &BindShaderResources<96>;
+    m_bindShaderResources[96] = &BindShaderResources<97>;
+    m_bindShaderResources[97] = &BindShaderResources<98>;
+    m_bindShaderResources[98] = &BindShaderResources<99>;
+    m_bindShaderResources[99] = &BindShaderResources<100>;
+    m_bindShaderResources[100] = &BindShaderResources<101>;
+    m_bindShaderResources[101] = &BindShaderResources<102>;
+    m_bindShaderResources[102] = &BindShaderResources<103>;
+    m_bindShaderResources[103] = &BindShaderResources<104>;
+    m_bindShaderResources[104] = &BindShaderResources<105>;
+    m_bindShaderResources[105] = &BindShaderResources<106>;
+    m_bindShaderResources[106] = &BindShaderResources<107>;
+    m_bindShaderResources[107] = &BindShaderResources<108>;
+    m_bindShaderResources[108] = &BindShaderResources<109>;
+    m_bindShaderResources[109] = &BindShaderResources<110>;
+    m_bindShaderResources[110] = &BindShaderResources<111>;
+    m_bindShaderResources[111] = &BindShaderResources<112>;
+    m_bindShaderResources[112] = &BindShaderResources<113>;
+    m_bindShaderResources[113] = &BindShaderResources<114>;
+    m_bindShaderResources[114] = &BindShaderResources<115>;
+    m_bindShaderResources[115] = &BindShaderResources<116>;
+    m_bindShaderResources[116] = &BindShaderResources<117>;
+    m_bindShaderResources[117] = &BindShaderResources<118>;
+    m_bindShaderResources[118] = &BindShaderResources<119>;
+    m_bindShaderResources[119] = &BindShaderResources<120>;
+    m_bindShaderResources[120] = &BindShaderResources<121>;
+    m_bindShaderResources[121] = &BindShaderResources<122>;
+    m_bindShaderResources[122] = &BindShaderResources<123>;
+    m_bindShaderResources[123] = &BindShaderResources<124>;
+    m_bindShaderResources[124] = &BindShaderResources<125>;
+    m_bindShaderResources[125] = &BindShaderResources<126>;
+    m_bindShaderResources[126] = &BindShaderResources<127>;
+    m_bindShaderResources[127] = &BindShaderResources<128>;
+
+    m_bindVertexBuffers[0] = &BindVertexBuffers<1>;
+    m_bindVertexBuffers[1] = &BindVertexBuffers<2>;
+    m_bindVertexBuffers[2] = &BindVertexBuffers<3>;
+    m_bindVertexBuffers[3] = &BindVertexBuffers<4>;
+    m_bindVertexBuffers[4] = &BindVertexBuffers<5>;
+    m_bindVertexBuffers[5] = &BindVertexBuffers<6>;
+    m_bindVertexBuffers[6] = &BindVertexBuffers<7>;
+    m_bindVertexBuffers[7] = &BindVertexBuffers<8>;
+    m_bindVertexBuffers[8] = &BindVertexBuffers<9>;
+    m_bindVertexBuffers[9] = &BindVertexBuffers<10>;
+    m_bindVertexBuffers[10] = &BindVertexBuffers<11>;
+    m_bindVertexBuffers[11] = &BindVertexBuffers<12>;
+    m_bindVertexBuffers[12] = &BindVertexBuffers<13>;
+    m_bindVertexBuffers[13] = &BindVertexBuffers<14>;
+    m_bindVertexBuffers[14] = &BindVertexBuffers<15>;
+    m_bindVertexBuffers[15] = &BindVertexBuffers<16>;
+    m_bindVertexBuffers[16] = &BindVertexBuffers<17>;
+    m_bindVertexBuffers[17] = &BindVertexBuffers<18>;
+    m_bindVertexBuffers[18] = &BindVertexBuffers<19>;
+    m_bindVertexBuffers[19] = &BindVertexBuffers<20>;
+    m_bindVertexBuffers[20] = &BindVertexBuffers<21>;
+    m_bindVertexBuffers[21] = &BindVertexBuffers<22>;
+    m_bindVertexBuffers[22] = &BindVertexBuffers<23>;
+    m_bindVertexBuffers[23] = &BindVertexBuffers<24>;
+    m_bindVertexBuffers[24] = &BindVertexBuffers<25>;
+    m_bindVertexBuffers[25] = &BindVertexBuffers<26>;
+    m_bindVertexBuffers[26] = &BindVertexBuffers<27>;
+    m_bindVertexBuffers[27] = &BindVertexBuffers<28>;
+    m_bindVertexBuffers[28] = &BindVertexBuffers<29>;
+    m_bindVertexBuffers[29] = &BindVertexBuffers<30>;
+    m_bindVertexBuffers[30] = &BindVertexBuffers<31>;
+    m_bindVertexBuffers[31] = &BindVertexBuffers<32>;
   }
   
   
@@ -1668,6 +1861,9 @@ namespace dxvk {
     const UINT*                             pStrides,
     const UINT*                             pOffsets) {
     D3D10DeviceLock lock = LockContext();
+
+    uint32_t slotIds[32];
+    uint32_t slotCount = 0;
     
     for (uint32_t i = 0; i < NumBuffers; i++) {
       auto newBuffer = static_cast<D3D11Buffer*>(ppVertexBuffers[i]);
@@ -1682,10 +1878,12 @@ namespace dxvk {
       if (needsUpdate) {
         m_state.ia.vertexBuffers[StartSlot + i].offset = pOffsets[i];
         m_state.ia.vertexBuffers[StartSlot + i].stride = pStrides[i];
-
-        BindVertexBuffer(StartSlot + i, newBuffer, pOffsets[i], pStrides[i]);
+        slotIds[slotCount++] = StartSlot + i;
       }
     }
+
+    if (slotCount)
+      (this->*m_bindVertexBuffers[slotCount - 1])(slotIds);
   }
   
   
@@ -3465,6 +3663,17 @@ namespace dxvk {
   }
   
   
+  template<uint32_t Count>
+  void D3D11DeviceContext::BindVertexBuffers(
+    const UINT*                             pSlots) {
+    EmitCs([
+      cBindInfo = D3D11BindInfo<D3D11VertexBufferBindInfo, Count>(m_state.ia.vertexBuffers.data(), pSlots)
+    ] (DxvkContext* ctx) {
+      cBindInfo.bind(ctx, 0);
+    });
+  }
+
+
   void D3D11DeviceContext::BindIndexBuffer(
           D3D11Buffer*                      pBuffer,
           UINT                              Offset,
@@ -3539,6 +3748,20 @@ namespace dxvk {
   }
   
   
+  template<uint32_t Count>
+  void D3D11DeviceContext::BindConstantBuffers(
+          UINT                              BaseSlot,
+    const UINT*                             pSlots,
+    const D3D11ConstantBufferBindings&      Bindings) {
+    EmitCs([
+      cSlotId   = BaseSlot,
+      cBindInfo = D3D11BindInfo<D3D11ConstantBufferBindInfo, Count>(Bindings.data(), pSlots)
+    ] (DxvkContext* ctx) {
+      cBindInfo.bind(ctx, cSlotId);
+    });
+  }
+
+
   void D3D11DeviceContext::BindSampler(
           UINT                              Slot,
           D3D11SamplerState*                pSampler) {
@@ -3547,6 +3770,20 @@ namespace dxvk {
       cSampler  = pSampler != nullptr ? pSampler->GetDXVKSampler() : nullptr
     ] (DxvkContext* ctx) {
       ctx->bindResourceSampler(cSlotId, cSampler);
+    });
+  }
+  
+  
+  template<uint32_t Count>
+  void D3D11DeviceContext::BindSamplers(
+          UINT                              BaseSlot,
+    const UINT*                             pSlots,
+    const D3D11SamplerBindings&             Bindings) {
+    EmitCs([
+      cSlotId   = BaseSlot,
+      cBindInfo = D3D11BindInfo<D3D11SamplerBindInfo, Count>(Bindings.data(), pSlots)
+    ] (DxvkContext* ctx) {
+      cBindInfo.bind(ctx, cSlotId);
     });
   }
   
@@ -3560,6 +3797,20 @@ namespace dxvk {
       cBufferView = pResource != nullptr ? pResource->GetBufferView() : nullptr
     ] (DxvkContext* ctx) {
       ctx->bindResourceView(cSlotId, cImageView, cBufferView);
+    });
+  }
+
+
+  template<uint32_t Count>
+  void D3D11DeviceContext::BindShaderResources(
+          UINT                              BaseSlot,
+    const UINT*                             pSlots,
+    const D3D11ShaderResourceBindings&      Bindings) {
+    EmitCs([
+      cSlotId   = BaseSlot,
+      cBindInfo = D3D11BindInfo<D3D11ShaderResourceBindInfo, Count>(Bindings.views.data(), pSlots)
+    ] (DxvkContext* ctx) {
+      cBindInfo.bind(ctx, cSlotId);
     });
   }
   
@@ -3633,8 +3884,9 @@ namespace dxvk {
           UINT                              StartSlot,
           UINT                              NumBuffers,
           ID3D11Buffer* const*              ppConstantBuffers) {
-    uint32_t slotId = computeConstantBufferBinding(ShaderStage, StartSlot);
-    
+    uint32_t slotIds[16];
+    uint32_t slotCount = 0;
+
     for (uint32_t i = 0; i < NumBuffers; i++) {
       auto newBuffer = static_cast<D3D11Buffer*>(ppConstantBuffers[i]);
       
@@ -3649,9 +3901,13 @@ namespace dxvk {
         Bindings[StartSlot + i].constantOffset = 0;
         Bindings[StartSlot + i].constantCount  = constantBound;
         Bindings[StartSlot + i].constantBound  = constantBound;
-        
-        BindConstantBuffer(slotId + i, newBuffer);
+        slotIds[slotCount++] = StartSlot + i;
       }
+    }
+
+    if (slotCount) {
+      (this->*m_bindConstantBuffers[slotCount - 1])(
+        computeConstantBufferBinding(ShaderStage, 0), slotIds, Bindings);
     }
   }
   
@@ -3664,7 +3920,8 @@ namespace dxvk {
           ID3D11Buffer* const*              ppConstantBuffers,
     const UINT*                             pFirstConstant,
     const UINT*                             pNumConstants) {
-    uint32_t slotId = computeConstantBufferBinding(ShaderStage, StartSlot);
+    uint32_t slotIds[16];
+    uint32_t slotCount = 0;
     
     for (uint32_t i = 0; i < NumBuffers; i++) {
       auto newBuffer = static_cast<D3D11Buffer*>(ppConstantBuffers[i]);
@@ -3705,9 +3962,13 @@ namespace dxvk {
         Bindings[StartSlot + i].constantOffset = constantOffset;
         Bindings[StartSlot + i].constantCount  = constantCount;
         Bindings[StartSlot + i].constantBound  = constantBound;
-        
-        BindConstantBuffer1(slotId + i, newBuffer, constantOffset, constantBound);
+        slotIds[slotCount++] = StartSlot + i;
       }
+    }
+
+    if (slotCount) {
+      (this->*m_bindConstantBuffers[slotCount - 1])(
+        computeConstantBufferBinding(ShaderStage, 0), slotIds, Bindings);
     }
   }
   
@@ -3718,15 +3979,21 @@ namespace dxvk {
           UINT                              StartSlot,
           UINT                              NumSamplers,
           ID3D11SamplerState* const*        ppSamplers) {
-    uint32_t slotId = computeSamplerBinding(ShaderStage, StartSlot);
+    uint32_t slotIds[16];
+    uint32_t slotCount = 0;
     
     for (uint32_t i = 0; i < NumSamplers; i++) {
       auto sampler = static_cast<D3D11SamplerState*>(ppSamplers[i]);
       
       if (Bindings[StartSlot + i] != sampler) {
         Bindings[StartSlot + i] = sampler;
-        BindSampler(slotId + i, sampler);
+        slotIds[slotCount++] = StartSlot + i;
       }
+    }
+
+    if (slotCount) {
+      (this->*m_bindSamplers[slotCount - 1])(
+        computeSamplerBinding(ShaderStage, 0), slotIds, Bindings);
     }
   }
   
@@ -3737,7 +4004,8 @@ namespace dxvk {
           UINT                              StartSlot,
           UINT                              NumResources,
           ID3D11ShaderResourceView* const*  ppResources) {
-    uint32_t slotId = computeSrvBinding(ShaderStage, StartSlot);
+    uint32_t slotIds[128];
+    uint32_t slotCount = 0;
     
     for (uint32_t i = 0; i < NumResources; i++) {
       auto resView = static_cast<D3D11ShaderResourceView*>(ppResources[i]);
@@ -3754,8 +4022,13 @@ namespace dxvk {
         }
 
         Bindings.views[StartSlot + i] = resView;
-        BindShaderResource(slotId + i, resView);
+        slotIds[slotCount++] = StartSlot + i;
       }
+    }
+
+    if (slotCount) {
+      (this->*m_bindShaderResources[slotCount - 1])(
+        computeSrvBinding(ShaderStage, 0), slotIds, Bindings);
     }
   }
   
@@ -3946,10 +4219,12 @@ namespace dxvk {
           D3D11ConstantBufferBindings&      Bindings) {
     uint32_t slotId = computeConstantBufferBinding(Stage, 0);
     
-    for (uint32_t i = 0; i < Bindings.size(); i++) {
-      BindConstantBuffer1(slotId + i, Bindings[i].buffer.ptr(),
-        Bindings[i].constantOffset, Bindings[i].constantBound);
-    }
+    EmitCs([
+      cSlotId   = slotId,
+      cBindInfo = D3D11BindInfo<D3D11ConstantBufferBindInfo, 14>(Bindings.data(), 0u)
+    ] (DxvkContext* ctx) {
+      cBindInfo.bind(ctx, cSlotId);
+    });
   }
   
   
@@ -3958,8 +4233,12 @@ namespace dxvk {
           D3D11SamplerBindings&             Bindings) {
     uint32_t slotId = computeSamplerBinding(Stage, 0);
     
-    for (uint32_t i = 0; i < Bindings.size(); i++)
-      BindSampler(slotId + i, Bindings[i]);
+    EmitCs([
+      cSlotId   = slotId,
+      cBindInfo = D3D11BindInfo<D3D11SamplerBindInfo, 16>(Bindings.data(), 0u)
+    ] (DxvkContext* ctx) {
+      cBindInfo.bind(ctx, cSlotId);
+    });
   }
   
   
@@ -3967,9 +4246,13 @@ namespace dxvk {
   void D3D11DeviceContext::RestoreShaderResources(
           D3D11ShaderResourceBindings&      Bindings) {
     uint32_t slotId = computeSrvBinding(Stage, 0);
-    
-    for (uint32_t i = 0; i < Bindings.views.size(); i++)
-      BindShaderResource(slotId + i, Bindings.views[i].ptr());
+
+    EmitCs([
+      cSlotId   = slotId,
+      cBindInfo = D3D11BindInfo<D3D11ShaderResourceBindInfo, 128>(Bindings.views.data(), 0u)
+    ] (DxvkContext* ctx) {
+      cBindInfo.bind(ctx, cSlotId);
+    });
   }
   
   

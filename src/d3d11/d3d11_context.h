@@ -705,6 +705,17 @@ namespace dxvk {
             VkImageLayout             NewLayout);
 
   protected:
+
+    using BindSamplersProc = void (D3D11DeviceContext::*)(
+            UINT, const UINT*, const D3D11SamplerBindings&);
+
+    using BindConstantBuffersProc = void (D3D11DeviceContext::*)(
+            UINT, const UINT*, const D3D11ConstantBufferBindings&);
+
+    using BindShaderResourcesProc = void (D3D11DeviceContext::*)(
+            UINT, const UINT*, const D3D11ShaderResourceBindings&);
+    
+    using BindVertexBuffersProc = void (D3D11DeviceContext::*)(const UINT*);
     
     D3D11Device* const          m_parent;
     D3D11DeviceContextExt       m_contextExt;
@@ -719,6 +730,11 @@ namespace dxvk {
     
     D3D11ContextState           m_state;
     D3D11CmdData*               m_cmdData;
+
+    std::array<BindSamplersProc,         16> m_bindSamplers;
+    std::array<BindConstantBuffersProc,  14> m_bindConstantBuffers;
+    std::array<BindShaderResourcesProc, 128> m_bindShaderResources;
+    std::array<BindVertexBuffersProc,    32> m_bindVertexBuffers;
     
     void ApplyInputLayout();
     
@@ -752,6 +768,10 @@ namespace dxvk {
             UINT                              Offset,
             UINT                              Stride);
     
+    template<uint32_t Count>
+    void BindVertexBuffers(
+      const UINT*                             pSlots);
+    
     void BindIndexBuffer(
             D3D11Buffer*                      pBuffer,
             UINT                              Offset,
@@ -772,13 +792,31 @@ namespace dxvk {
             UINT                              Offset,
             UINT                              Length);
     
+    template<uint32_t Count>
+    void BindConstantBuffers(
+            UINT                              BaseSlot,
+      const UINT*                             pSlots,
+      const D3D11ConstantBufferBindings&      Bindings);
+    
     void BindSampler(
             UINT                              Slot,
             D3D11SamplerState*                pSampler);
     
+    template<uint32_t Count>
+    void BindSamplers(
+            UINT                              BaseSlot,
+      const UINT*                             pSlots,
+      const D3D11SamplerBindings&             Bindings);
+
     void BindShaderResource(
             UINT                              Slot,
             D3D11ShaderResourceView*          pResource);
+    
+    template<uint32_t Count>
+    void BindShaderResources(
+            UINT                              BaseSlot,
+      const UINT*                             pSlots,
+      const D3D11ShaderResourceBindings&      Bindings);
     
     void BindUnorderedAccessView(
             UINT                              UavSlot,
