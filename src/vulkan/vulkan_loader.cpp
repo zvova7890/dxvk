@@ -6,16 +6,45 @@ namespace dxvk::vk {
 
   extern "C"
   PFN_vkVoidFunction native_vkGetInstanceProcAddrWINE(VkInstance instance, const char *name);
-  static const PFN_vkGetInstanceProcAddr GetInstanceProcAddr = native_vkGetInstanceProcAddrWINE;
+
+  static PFN_vkGetInstanceProcAddr loadGetInstanceProcAddr() {
+    return native_vkGetInstanceProcAddrWINE;
+  }
+
+#elif defined(__WIN32__)
+
+  static PFN_vkGetInstanceProcAddr loadGetInstanceProcAddr() {
+    static PFN_vkGetInstanceProcAddr proc = nullptr;
+
+    if (proc)
+      return proc;
+
+    HMODULE module = ::GetModuleHandle("winevulkan.dll");
+
+    if (!module)
+      module = ::LoadLibrary("winevulkan.dll");
+
+    if (module) {
+      proc = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+        GetProcAddress(module, "wine_vkGetInstanceProcAddr"));
+    }
+
+    if (!proc)
+      proc = vkGetInstanceProcAddr;
+
+    return proc;
+  }
 
 #else
 
-  static const PFN_vkGetInstanceProcAddr GetInstanceProcAddr = vkGetInstanceProcAddr;
+  static PFN_vkGetInstanceProcAddr loadGetInstanceProcAddr() {
+    return vkGetInstanceProcAddr;
+  }
 
 #endif
 
   PFN_vkVoidFunction LibraryLoader::sym(const char* name) const {
-    return dxvk::vk::GetInstanceProcAddr(nullptr, name);
+    return loadGetInstanceProcAddr()(nullptr, name);
   }
   
   
@@ -24,13 +53,13 @@ namespace dxvk::vk {
   
   
   PFN_vkVoidFunction InstanceLoader::sym(const char* name) const {
-    return dxvk::vk::GetInstanceProcAddr(m_instance, name);
+    return loadGetInstanceProcAddr()(m_instance, name);
   }
   
   
   DeviceLoader::DeviceLoader(bool owned, VkInstance instance, VkDevice device)
   : m_getDeviceProcAddr(reinterpret_cast<PFN_vkGetDeviceProcAddr>(
-      dxvk::vk::GetInstanceProcAddr(instance, "vkGetDeviceProcAddr"))),
+      loadGetInstanceProcAddr()(instance, "vkGetDeviceProcAddr"))),
     m_device(device), m_owned(owned) { }
   
   
