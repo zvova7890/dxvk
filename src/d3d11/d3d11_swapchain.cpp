@@ -311,6 +311,9 @@ namespace dxvk {
         m_context->queueSignal(syncEvent);
 
       SubmitPresent(immediateContext, sync);
+
+      // Not synchronizing apparently breaks RADV
+      SynchronizePresent();
     }
   }
 
