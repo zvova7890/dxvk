@@ -393,4 +393,29 @@ namespace dxvk::hud {
 
   };
 
+
+  /**
+   * \brief HUD item to display system memory usage
+   */
+  class HudSysmemItem : public HudItem {
+
+  public:
+
+    HudSysmemItem(const Rc<DxvkDevice>& device);
+
+    ~HudSysmemItem();
+
+    void update(dxvk::high_resolution_clock::time_point time);
+
+    HudPos render(
+            HudRenderer&      renderer,
+            HudPos            position);
+
+  private:
+
+    uint32_t m_workingSet   = 0;
+    uint32_t m_privateUsage = 0;
+
+  };
+
 }

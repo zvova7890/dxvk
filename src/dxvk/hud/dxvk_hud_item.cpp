@@ -3,6 +3,9 @@
 #include <iomanip>
 #include <version.h>
 
+#include <windows.h>
+#include <psapi.h>
+
 namespace dxvk::hud {
 
   HudItem::~HudItem() {
@@ -581,6 +584,59 @@ namespace dxvk::hud {
         "Compiling shaders...");
     }
 
+    return position;
+  }
+
+
+  HudSysmemItem::HudSysmemItem(const Rc<DxvkDevice>& device) {
+
+  }
+
+
+  HudSysmemItem::~HudSysmemItem() {
+
+  }
+
+
+  void HudSysmemItem::update(dxvk::high_resolution_clock::time_point time) {
+    PROCESS_MEMORY_COUNTERS_EX stats = { };
+    stats.cb = sizeof(PROCESS_MEMORY_COUNTERS_EX);
+
+    ::GetProcessMemoryInfo(GetCurrentProcess(),
+      reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&stats),
+      sizeof(stats));
+
+    m_workingSet   = stats.WorkingSetSize;
+    m_privateUsage = stats.PagefileUsage;
+  }
+
+
+  HudPos HudSysmemItem::render(
+          HudRenderer&      renderer,
+          HudPos            position) {
+    position.y += 16.0f;
+    renderer.drawText(16.0f,
+      { position.x, position.y },
+      { 1.0f, 0.5f, 0.25f, 1.0f },
+      "Working set:");
+
+    renderer.drawText(16.0f,
+      { position.x + 180.0f, position.y },
+      { 1.0f, 1.0f, 1.0f, 1.0f },
+      str::format(m_workingSet / (1 << 20), " MB"));
+
+    position.y += 20.0f;
+    renderer.drawText(16.0f,
+      { position.x, position.y },
+      { 1.0f, 0.5f, 0.25f, 1.0f },
+      "Private usage:");
+
+    renderer.drawText(16.0f,
+      { position.x + 180.0f, position.y },
+      { 1.0f, 1.0f, 1.0f, 1.0f },
+      str::format(m_privateUsage / (1 << 20), " MB"));
+
+    position.y += 8.0f;
     return position;
   }
 
