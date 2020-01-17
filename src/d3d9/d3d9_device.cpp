@@ -4361,7 +4361,8 @@ namespace dxvk {
     info.access = VK_ACCESS_UNIFORM_READ_BIT;
 
     VkMemoryPropertyFlags memoryFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-                                      | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+                                      | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                                      | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     info.stages = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
     info.size   = m_vsLayout.totalSize();
