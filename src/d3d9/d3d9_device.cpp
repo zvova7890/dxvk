@@ -2640,8 +2640,9 @@ namespace dxvk {
         GetVertexShaderPermutation());
     }
 
-    m_flags.set(D3D9DeviceFlag::DirtyInputLayout);
-
+    m_flags.set(
+      D3D9DeviceFlag::DirtyInputLayout,
+      D3D9DeviceFlag::DirtyShadowSamplers);
     return D3D_OK;
   }
 
@@ -2967,6 +2968,7 @@ namespace dxvk {
 
     UpdateActiveHazards();
 
+    m_flags.set(D3D9DeviceFlag::DirtyShadowSamplers);
     return D3D_OK;
   }
 
@@ -3473,6 +3475,17 @@ namespace dxvk {
     TextureChangePrivate(m_state.textures[StateSampler], pTexture);
 
     BindTexture(StateSampler);
+
+    // Make sure we bind the correct sampler for depth textures
+    bool isShadow = false;
+
+    if (likely(pTexture != nullptr))
+      isShadow = GetCommonTexture(pTexture)->IsShadow();
+
+    if (unlikely(m_shadowSamplers.set(StateSampler, isShadow))) {
+      m_dirtySamplerStates |= 1 << StateSampler;
+      m_flags.set(D3D9DeviceFlag::DirtyShadowSamplers);
+    }
 
     // We only care about PS samplers
     if (likely(StateSampler <= caps::MaxSamplers))
@@ -5187,19 +5200,18 @@ namespace dxvk {
       samplerInfo.first, DxsoBindingType::ColorImage,
       samplerInfo.second);
 
-    const uint32_t depthSlot = computeResourceSlotId(
-      samplerInfo.first, DxsoBindingType::DepthImage,
-      samplerInfo.second);
+    bool isShadow = m_shadowSamplers.test(Sampler);
 
     EmitCs([this,
       cColorSlot = colorSlot,
-      cDepthSlot = depthSlot,
+      cIsShadow  = isShadow,
       cKey       = key
     ] (DxvkContext* ctx) {
       auto pair = m_samplers.find(cKey);
       if (pair != m_samplers.end()) {
-        ctx->bindResourceSampler(cColorSlot, pair->second.color);
-        ctx->bindResourceSampler(cDepthSlot, pair->second.depth);
+        ctx->bindResourceSampler(cColorSlot, cIsShadow
+          ? pair->second.depth
+          : pair->second.color);
         return;
       }
 
@@ -5248,8 +5260,7 @@ namespace dxvk {
         m_samplerCount++;
 
         m_samplers.insert(std::make_pair(cKey, pair));
-        ctx->bindResourceSampler(cColorSlot, pair.color);
-        ctx->bindResourceSampler(cDepthSlot, pair.depth);
+        ctx->bindResourceSampler(cColorSlot, cIsShadow ? pair.depth : pair.color);
       }
       catch (const DxvkError& e) {
         Logger::err(e.message());
@@ -5263,9 +5274,6 @@ namespace dxvk {
 
     uint32_t colorSlot = computeResourceSlotId(shaderSampler.first,
       DxsoBindingType::ColorImage, uint32_t(shaderSampler.second));
-
-    uint32_t depthSlot = computeResourceSlotId(shaderSampler.first,
-      DxsoBindingType::DepthImage, uint32_t(shaderSampler.second));
 
     const bool srgb =
       m_state.samplerStates[StateSampler][D3DSAMP_SRGBTEXTURE];
@@ -5288,23 +5296,19 @@ namespace dxvk {
 
     if (commonTex == nullptr) {
       EmitCs([
-        cColorSlot = colorSlot,
-        cDepthSlot = depthSlot
+        cColorSlot = colorSlot
       ](DxvkContext* ctx) {
         ctx->bindResourceView(cColorSlot, nullptr, nullptr);
-        ctx->bindResourceView(cDepthSlot, nullptr, nullptr);
       });
       return;
     }
 
     EmitCs([
       cColorSlot = colorSlot,
-      cDepthSlot = depthSlot,
       cDepth     = commonTex->IsShadow(),
       cImageView = commonTex->GetSampleView(srgb)
     ](DxvkContext* ctx) {
-      ctx->bindResourceView(cColorSlot, !cDepth ? cImageView : nullptr, nullptr);
-      ctx->bindResourceView(cDepthSlot,  cDepth ? cImageView : nullptr, nullptr);
+      ctx->bindResourceView(cColorSlot, cImageView, nullptr);
     });
   }
 
@@ -5462,6 +5466,9 @@ namespace dxvk {
 
       UpdateFixedFunctionPS();
     }
+
+    if (m_flags.test(D3D9DeviceFlag::DirtyShadowSamplers))
+      UpdateShadowSamplerSpecConstant();
 
     if (m_flags.test(D3D9DeviceFlag::DirtySharedPixelShaderData)) {
       m_flags.clr(D3D9DeviceFlag::DirtySharedPixelShaderData);
@@ -6156,6 +6163,17 @@ namespace dxvk {
     });
 
     m_lastProjectionBitfield = value;
+  }
+
+
+  void D3D9DeviceEx::UpdateShadowSamplerSpecConstant() {
+    uint32_t shadowSamplers = m_shadowSamplers.dword(0);
+
+    // TODO apply shader mask
+
+    EmitCs([cShadowSamplers = shadowSamplers] (DxvkContext* ctx) {
+      ctx->setSpecConstant(VK_PIPELINE_BIND_POINT_GRAPHICS, D3D9SpecConstantId::ShadowSamplers, cShadowSamplers);
+    });
   }
 
 

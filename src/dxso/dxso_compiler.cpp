@@ -717,8 +717,7 @@ namespace dxvk {
       m_module.setDebugName(sampler.varId, name.c_str());
 
       const uint32_t bindingId = computeResourceSlotId(m_programInfo.type(),
-        !depth ? DxsoBindingType::ColorImage : DxsoBindingType::DepthImage,
-        idx);
+        DxsoBindingType::ColorImage, idx);
 
       m_module.decorateDescriptorSet(sampler.varId, 0);
       m_module.decorateBinding      (sampler.varId, bindingId);
@@ -762,20 +761,13 @@ namespace dxvk {
     const uint32_t colorBinding = computeResourceSlotId(m_programInfo.type(),
       DxsoBindingType::ColorImage, idx);
 
-    const uint32_t depthBinding = computeResourceSlotId(m_programInfo.type(),
-      DxsoBindingType::DepthImage, idx);
-
     DxsoSampler& sampler = m_samplers[idx];
 
     sampler.colorSpecConst = m_module.specConstBool(true);
-    sampler.depthSpecConst = m_module.specConstBool(true);
     sampler.type = type;
     m_module.decorateSpecId(sampler.colorSpecConst, colorBinding);
-    m_module.decorateSpecId(sampler.depthSpecConst, depthBinding);
     m_module.setDebugName(sampler.colorSpecConst,
       str::format("s", idx, "_useColor").c_str());
-    m_module.setDebugName(sampler.depthSpecConst,
-      str::format("s", idx, "_useShadow").c_str());
 
     // Declare spec constant that stores, as a bit mask, which
     // samplers are color samplers and which are shadow samplers
@@ -2801,10 +2793,6 @@ void DxsoCompiler::emitControlFlowGenericLoop(
         uint32_t condition = m_module.opINotEqual(
           getScalarTypeId(DxsoScalarType::Bool),
           shadowBit, m_module.constu32(0));
-
-        condition = m_module.opLogicalOr(
-          getScalarTypeId(DxsoScalarType::Bool),
-          condition, sampler.depthSpecConst);
 
         m_module.opSelectionMerge(endLabel, spv::SelectionControlMaskNone);
         m_module.opBranchConditional(condition, depthLabel, colorLabel);

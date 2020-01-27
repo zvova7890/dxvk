@@ -73,6 +73,7 @@ namespace dxvk {
     ValidSampleMask,
     DirtyDepthBounds,
     DirtyPointScale,
+    DirtyShadowSamplers,
   };
 
   using D3D9DeviceFlags = Flags<D3D9DeviceFlag>;
@@ -1038,6 +1039,8 @@ namespace dxvk {
     D3D9ConstantLayout              m_vsLayout;
     D3D9ConstantLayout              m_psLayout;
 
+    DxvkBindingSet<SamplerCount>    m_shadowSamplers = { };
+
     void DetermineConstantLayouts(bool canSWVP);
 
     D3D9UPBufferSlice AllocUpBuffer(VkDeviceSize size);
@@ -1172,6 +1175,8 @@ namespace dxvk {
     void UpdateSamplerSpecConsant(uint32_t value);
 
     void UpdateProjectionSpecConstant(uint32_t value);
+
+    void UpdateShadowSamplerSpecConstant();
 
   };
 
