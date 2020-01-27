@@ -59,6 +59,10 @@ namespace dxvk {
     return Sampler;
   }
 
+  inline uint32_t RemapShaderSampler(DxsoProgramType Stage, uint32_t Sampler) {
+    return Stage == DxsoProgramType::PixelShader ? Sampler : Sampler + 17;
+  }
+
   inline std::pair<DxsoProgramType, DWORD> RemapStateSamplerShader(DWORD Sampler) {
     if (Sampler >= 17)
       return std::make_pair(DxsoProgramTypes::VertexShader, Sampler - 17);

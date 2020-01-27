@@ -17,6 +17,8 @@ namespace dxvk {
 
     VertexShaderBools = 8,
     PixelShaderBools  = 9,
+
+    ShadowSamplers  = 10,
   };
 
 }

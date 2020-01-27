@@ -267,6 +267,7 @@ namespace dxvk {
     SpirvModule                m_module;
 
     uint32_t                   m_boolSpecConstant;
+    uint32_t                   m_shadowSamplersSpecConstant = 0;
 
     ///////////////////////////////////////////////////////
     // Resource slot description for the shader. This will

@@ -776,6 +776,17 @@ namespace dxvk {
       str::format("s", idx, "_useColor").c_str());
     m_module.setDebugName(sampler.depthSpecConst,
       str::format("s", idx, "_useShadow").c_str());
+
+    // Declare spec constant that stores, as a bit mask, which
+    // samplers are color samplers and which are shadow samplers
+    if (!m_shadowSamplersSpecConstant) {
+      uint32_t uintType = getScalarTypeId(DxsoScalarType::Uint32);
+      m_shadowSamplersSpecConstant = m_module.specConst32(uintType, 0);
+      m_module.decorateSpecId(m_shadowSamplersSpecConstant,
+        getSpecId(D3D9SpecConstantId::ShadowSamplers));
+      m_module.setDebugName(m_shadowSamplersSpecConstant,
+        str::format("g_shadowSamplers").c_str());
+    }
   }
 
 
@@ -2771,6 +2782,8 @@ void DxsoCompiler::emitControlFlowGenericLoop(
       this->emitDstStore(dst, result, ctx.dst.mask, ctx.dst.saturate, emitPredicateLoad(ctx), ctx.dst.shift, ctx.dst.id);
     };
 
+    uint32_t apiSamplerIdx = RemapShaderSampler(m_programInfo.type(), samplerIdx);
+
     auto SampleType = [&](DxsoSamplerType samplerType) {
       // Only do the check for depth comp. samplers
       // if we aren't a 3D texture
@@ -2779,8 +2792,22 @@ void DxsoCompiler::emitControlFlowGenericLoop(
         uint32_t depthLabel  = m_module.allocateId();
         uint32_t endLabel    = m_module.allocateId();
 
+        uint32_t shadowBit = m_module.opBitFieldUExtract(
+          getScalarTypeId(DxsoScalarType::Uint32),
+          m_shadowSamplersSpecConstant,
+          m_module.consti32(apiSamplerIdx),
+          m_module.consti32(1));
+
+        uint32_t condition = m_module.opINotEqual(
+          getScalarTypeId(DxsoScalarType::Bool),
+          shadowBit, m_module.constu32(0));
+
+        condition = m_module.opLogicalOr(
+          getScalarTypeId(DxsoScalarType::Bool),
+          condition, sampler.depthSpecConst);
+
         m_module.opSelectionMerge(endLabel, spv::SelectionControlMaskNone);
-        m_module.opBranchConditional(sampler.depthSpecConst, depthLabel, colorLabel);
+        m_module.opBranchConditional(condition, depthLabel, colorLabel);
 
         m_module.opLabel(colorLabel);
         SampleImage(texcoordVar, sampler.color[samplerType], false, samplerType, sampler.colorSpecConst);
