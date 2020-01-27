@@ -121,6 +121,16 @@ namespace dxvk {
       return BitCount * intId + bit::tzcnt(mask);
     }
 
+    /**
+     * \brief Retrieves raw dword
+     *
+     * \param [in] idx Dword index
+     * \returns The raw bit mask
+     */
+    uint32_t dword(uint32_t idx) {
+      return m_slots[idx];
+    }
+    
     bool operator == (const DxvkBindingSet& other) const {
       bool eq = true;
       for (uint32_t i = 0; i < IntCount; i++)
@@ -131,7 +141,7 @@ namespace dxvk {
     bool operator != (const DxvkBindingSet& other) const {
       return !this->operator == (other);
     }
-    
+
   private:
     
     uint32_t m_slots[IntCount];
