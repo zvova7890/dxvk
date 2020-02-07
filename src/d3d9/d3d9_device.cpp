@@ -685,8 +685,7 @@ namespace dxvk {
     VkDeviceSize srcByteOffset = srcBlockOffset.y * formatInfo->elementSize * blockCount.width
                                + srcBlockOffset.x * formatInfo->elementSize;
 
-    VkExtent2D fullSrcExtent = VkExtent2D{ blockCount.width  * formatInfo->blockSize.width,
-                                           blockCount.height * formatInfo->blockSize.height };
+    VkExtent2D fullSrcExtent = ComputeCopySrcExtent(formatInfo, blockCount);
 
     EmitCs([
       cDstImage   = std::move(dstImage),
@@ -737,17 +736,23 @@ namespace dxvk {
         VkImageSubresourceLayers dstLayers = { VK_IMAGE_ASPECT_COLOR_BIT, m, a, 1 };
         
         VkExtent3D extent = dstImage->mipLevelExtent(m);
+
+        const DxvkFormatInfo* formatInfo = imageFormatInfo(dstTexInfo->GetFormatMapping().FormatColor);
+        VkExtent3D blockCount  = util::computeBlockCount(extent, formatInfo->blockSize);
+
+        VkExtent2D fullSrcExtent = ComputeCopySrcExtent(formatInfo, blockCount);
         
         EmitCs([
           cDstImage  = dstImage,
           cSrcBuffer = srcBuffer,
           cDstLayers = dstLayers,
-          cExtent    = extent
+          cExtent    = extent,
+          cSrcExtent = fullSrcExtent
         ] (DxvkContext* ctx) {
           ctx->copyBufferToImage(
             cDstImage,  cDstLayers,
             VkOffset3D{ 0, 0, 0 }, cExtent,
-            cSrcBuffer, 0, { 0u, 0u });
+            cSrcBuffer, 0, cSrcExtent);
         });
       }
     }
@@ -3994,13 +3999,13 @@ namespace dxvk {
     if (atiHack) {
       // We need to lie here. The game is expected to use this info and do a workaround.
       // It's stupid. I know.
-      pLockedBox->RowPitch   = std::max(desc.Width >> MipLevel, 1u);
+      pLockedBox->RowPitch   = align(std::max<INT>(desc.Width >> MipLevel, 1), 4);
       pLockedBox->SlicePitch = pLockedBox->RowPitch * std::max(desc.Height >> MipLevel, 1u);
     }
     else {
       // Data is tightly packed within the mapped buffer.
-      pLockedBox->RowPitch   = formatInfo->elementSize * blockCount.width;
-      pLockedBox->SlicePitch = formatInfo->elementSize * blockCount.width * blockCount.height;
+      pLockedBox->RowPitch   = align(formatInfo->elementSize * blockCount.width, 4);
+      pLockedBox->SlicePitch = pLockedBox->RowPitch * blockCount.height;
     }
 
     const uint32_t offset = CalcImageLockOffset(
@@ -4070,16 +4075,21 @@ namespace dxvk {
 
     auto videoFormat = pResource->GetFormatMapping().VideoFormatInfo;
 
+    VkExtent3D blockCount  = util::computeBlockCount(levelExtent, formatInfo->blockSize);
+
+    VkExtent2D fullSrcExtent = ComputeCopySrcExtent(formatInfo, blockCount);
+
     if (likely(videoFormat.FormatType == D3D9VideoFormat_None)) {
       EmitCs([
         cSrcBuffer      = copyBuffer,
         cDstImage       = image,
         cDstLayers      = subresourceLayers,
-        cDstLevelExtent = levelExtent
+        cDstLevelExtent = levelExtent,
+        cSrcExtent      = fullSrcExtent
       ] (DxvkContext* ctx) {
         ctx->copyBufferToImage(cDstImage, cDstLayers,
           VkOffset3D{ 0, 0, 0 }, cDstLevelExtent,
-          cSrcBuffer, 0, { 0u, 0u });
+          cSrcBuffer, 0, cSrcExtent);
       });
     } 
     else {

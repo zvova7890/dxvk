@@ -178,8 +178,7 @@ namespace dxvk {
     const VkExtent3D blockCount = util::computeBlockCount(
       mipExtent, formatInfo.blockSize);
 
-    return formatInfo.elementSize
-         * blockCount.width
+    return align(formatInfo.elementSize * blockCount.width, 4ull)
          * blockCount.height
          * blockCount.depth;
   }

@@ -257,6 +257,21 @@ namespace dxvk {
            uint32_t(offsets[1].y) > extent.height;
   }
 
+  inline VkExtent2D ComputeCopySrcExtent(
+    const DxvkFormatInfo* formatInfo,
+          VkExtent3D      blockCount) {
+    uint32_t rowPitch = uint32_t(formatInfo->elementSize * blockCount.width);
+             rowPitch = std::max(rowPitch, 4u);
+
+    uint32_t slicePitch = rowPitch * blockCount.height;
+
+    // Convert our pitch to what it would be if it were texels.
+    // We have no 888 formats so this assumption should be okay.
+    return VkExtent2D{
+      rowPitch   / uint32_t(formatInfo->elementSize) * formatInfo->blockSize.width,
+      slicePitch / uint32_t(formatInfo->elementSize) * formatInfo->blockSize.height };
+  }
+
   enum D3D9TextureStageStateTypes : uint32_t
   {
       DXVK_TSS_COLOROP        =  0,
