@@ -35,7 +35,7 @@ namespace dxvk {
     m_state.depthBiasEnable   = desc.DepthBias != 0 || desc.SlopeScaledDepthBias != 0.0f;
     m_state.depthClipEnable   = desc.DepthClipEnable;
     m_state.sampleCount       = VkSampleCountFlags(desc.ForcedSampleCount);
-    m_state.sampleCentered    = VK_FALSE;
+    m_state.sampleCentered    = desc.ForcedSampleCount == 1;
 
     m_depthBias.depthBiasConstant = float(desc.DepthBias);
     m_depthBias.depthBiasSlope    = desc.SlopeScaledDepthBias;
