@@ -139,6 +139,10 @@ namespace dxvk::vk {
     #ifdef VK_EXT_full_screen_exclusive
     VULKAN_FN(vkGetPhysicalDeviceSurfacePresentModes2EXT);
     #endif
+
+    #ifdef VK_EXT_sample_locations
+    VULKAN_FN(vkGetPhysicalDeviceMultisamplePropertiesEXT);
+    #endif
   };
   
   
@@ -312,6 +316,10 @@ namespace dxvk::vk {
 
     #ifdef VK_EXT_host_query_reset
     VULKAN_FN(vkResetQueryPoolEXT);
+    #endif
+
+    #ifdef VK_EXT_sample_locations
+    VULKAN_FN(vkCmdSetSampleLocationsEXT);
     #endif
 
     #ifdef VK_EXT_transform_feedback

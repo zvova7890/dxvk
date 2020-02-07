@@ -16,6 +16,7 @@ namespace dxvk {
     VkPhysicalDeviceProperties2                         core;
     VkPhysicalDeviceIDProperties                        coreDeviceId;
     VkPhysicalDeviceSubgroupProperties                  coreSubgroup;
+    VkPhysicalDeviceSampleLocationsPropertiesEXT        extSampleLocations;
     VkPhysicalDeviceTransformFeedbackPropertiesEXT      extTransformFeedback;
     VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT extVertexAttributeDivisor;
     VkPhysicalDeviceDepthStencilResolvePropertiesKHR    khrDepthStencilResolve;

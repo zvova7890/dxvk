@@ -242,7 +242,7 @@ namespace dxvk {
           DxvkDeviceFeatures  enabledFeatures) {
     DxvkDeviceExtensions devExtensions;
 
-    std::array<DxvkExt*, 20> devExtensionList = {{
+    std::array<DxvkExt*, 21> devExtensionList = {{
       &devExtensions.amdMemoryOverallocationBehaviour,
       &devExtensions.amdShaderFragmentMask,
       &devExtensions.extConditionalRendering,
@@ -251,6 +251,7 @@ namespace dxvk {
       &devExtensions.extHostQueryReset,
       &devExtensions.extMemoryBudget,
       &devExtensions.extMemoryPriority,
+      &devExtensions.extSampleLocations,
       &devExtensions.extShaderDemoteToHelperInvocation,
       &devExtensions.extShaderStencilExport,
       &devExtensions.extShaderViewportIndexLayer,
@@ -474,6 +475,11 @@ namespace dxvk {
 
     m_deviceInfo.coreSubgroup.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES;
     m_deviceInfo.coreSubgroup.pNext = std::exchange(m_deviceInfo.core.pNext, &m_deviceInfo.coreSubgroup);
+
+    if (m_deviceExtensions.supports(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME)) {
+      m_deviceInfo.extSampleLocations.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT;
+      m_deviceInfo.extSampleLocations.pNext = std::exchange(m_deviceInfo.core.pNext, &m_deviceInfo.extSampleLocations);
+    }
 
     if (m_deviceExtensions.supports(VK_EXT_TRANSFORM_FEEDBACK_EXTENSION_NAME)) {
       m_deviceInfo.extTransformFeedback.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT;
