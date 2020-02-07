@@ -327,6 +327,25 @@ namespace dxvk {
 
     uint32_t sampleMask = state.ms.sampleMask();
 
+    std::array<VkSampleLocationEXT, VK_SAMPLE_COUNT_16_BIT> msLocationsArray;
+    std::fill(msLocationsArray.begin(), msLocationsArray.end(), VkSampleLocationEXT { 0.5f, 0.5f });
+
+    VkSampleLocationsInfoEXT msLocationsInfo;
+    msLocationsInfo.sType         = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
+    msLocationsInfo.pNext         = nullptr;
+    msLocationsInfo.sampleLocationsPerPixel = sampleCount;
+    msLocationsInfo.sampleLocationGridSize  = { 1, 1 };
+    msLocationsInfo.sampleLocationsCount    = uint32_t(sampleCount);
+    msLocationsInfo.pSampleLocations        = msLocationsArray.data();
+
+    VkPipelineSampleLocationsStateCreateInfoEXT msLocations;
+    msLocations.sType             = VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT;
+    msLocations.pNext             = nullptr;
+    msLocations.sampleLocationsEnable = state.rs.sampleCentered()
+      && (!passFormat.depth.format || (!state.ds.enableDepthTest() && !state.ds.enableStencilTest()))
+      && sampleCount != VK_SAMPLE_COUNT_1_BIT;
+    msLocations.sampleLocationsInfo = msLocationsInfo;
+
     VkPipelineMultisampleStateCreateInfo msInfo;
     msInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     msInfo.pNext                  = nullptr;
@@ -337,6 +356,9 @@ namespace dxvk {
     msInfo.pSampleMask            = &sampleMask;
     msInfo.alphaToCoverageEnable  = state.ms.enableAlphaToCoverage();
     msInfo.alphaToOneEnable       = VK_FALSE;
+
+    if (msLocations.sampleLocationsEnable && m_pipeMgr->m_device->extensions().extSampleLocations)
+      msLocations.pNext = std::exchange(msInfo.pNext, &msLocations);
     
     VkPipelineDepthStencilStateCreateInfo dsInfo;
     dsInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
