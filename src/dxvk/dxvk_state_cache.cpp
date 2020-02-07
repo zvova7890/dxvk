@@ -830,7 +830,8 @@ namespace dxvk {
         in.gpState.rsCullMode,
         in.gpState.rsFrontFace,
         in.gpState.rsViewportCount,
-        in.gpState.rsSampleCount);
+        in.gpState.rsSampleCount,
+        VK_FALSE);
 
       out.gpState.ms = DxvkMsInfo(
         in.gpState.msSampleCount,

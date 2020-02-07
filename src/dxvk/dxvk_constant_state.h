@@ -104,6 +104,7 @@ namespace dxvk {
     VkBool32            depthClipEnable;
     VkBool32            depthBiasEnable;
     VkSampleCountFlags  sampleCount;
+    VkBool32            sampleCentered;
   };
   
   

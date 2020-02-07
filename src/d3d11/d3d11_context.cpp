@@ -4275,6 +4275,7 @@ namespace dxvk {
     pRsState->depthClipEnable = VK_TRUE;
     pRsState->depthBiasEnable = VK_FALSE;
     pRsState->sampleCount     = 0;
+    pRsState->sampleCentered  = VK_FALSE;
   }
 
 

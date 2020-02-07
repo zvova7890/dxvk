@@ -5118,6 +5118,7 @@ namespace dxvk {
     state.frontFace       = VK_FRONT_FACE_CLOCKWISE;
     state.polygonMode     = DecodeFillMode(D3DFILLMODE(rs[D3DRS_FILLMODE]));
     state.sampleCount     = 0;
+    state.sampleCentered  = VK_FALSE;
 
     EmitCs([
       cState  = state

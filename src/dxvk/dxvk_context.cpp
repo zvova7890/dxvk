@@ -2240,7 +2240,8 @@ namespace dxvk {
       rs.cullMode,
       rs.frontFace,
       m_state.gp.state.rs.viewportCount(),
-      rs.sampleCount);
+      rs.sampleCount,
+      rs.sampleCentered);
 
     m_flags.set(DxvkContextFlag::GpDirtyPipelineState);
   }

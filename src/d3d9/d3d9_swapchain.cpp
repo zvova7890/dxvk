@@ -1041,6 +1041,7 @@ namespace dxvk {
     m_rsState.depthClipEnable    = VK_FALSE;
     m_rsState.depthBiasEnable    = VK_FALSE;
     m_rsState.sampleCount        = VK_SAMPLE_COUNT_1_BIT;
+    m_rsState.sampleCentered     = VK_FALSE;
     
     m_msState.sampleMask            = 0xffffffff;
     m_msState.enableAlphaToCoverage = VK_FALSE;
