@@ -1779,6 +1779,10 @@ namespace dxvk {
           BindBlendFactor();
           break;
 
+        case D3DRS_MULTISAMPLEANTIALIAS:
+          m_flags.set(D3D9DeviceFlag::DirtyRasterizerState);
+          break;
+
         case D3DRS_MULTISAMPLEMASK:
           if (m_flags.test(D3D9DeviceFlag::ValidSampleMask))
             m_flags.set(D3D9DeviceFlag::DirtyMultiSampleState);
@@ -5118,7 +5122,7 @@ namespace dxvk {
     state.frontFace       = VK_FRONT_FACE_CLOCKWISE;
     state.polygonMode     = DecodeFillMode(D3DFILLMODE(rs[D3DRS_FILLMODE]));
     state.sampleCount     = 0;
-    state.sampleCentered  = VK_FALSE;
+    state.sampleCentered  = !m_state.renderStates[D3DRS_MULTISAMPLEANTIALIAS];
 
     EmitCs([
       cState  = state
@@ -6348,6 +6352,7 @@ namespace dxvk {
     rs[D3DRS_CULLMODE]            = D3DCULL_CCW;
     rs[D3DRS_DEPTHBIAS]           = bit::cast<DWORD>(0.0f);
     rs[D3DRS_SLOPESCALEDEPTHBIAS] = bit::cast<DWORD>(0.0f);
+    rs[D3DRS_MULTISAMPLEANTIALIAS] = TRUE;
     BindRasterizerState();
     BindDepthBias();
 
@@ -6433,7 +6438,6 @@ namespace dxvk {
     rs[D3DRS_WRAP6]                      = 0;
     rs[D3DRS_WRAP7]                      = 0;
     rs[D3DRS_CLIPPING]                   = TRUE;
-    rs[D3DRS_MULTISAMPLEANTIALIAS]       = TRUE;
     rs[D3DRS_PATCHEDGESTYLE]             = D3DPATCHEDGE_DISCRETE;
     rs[D3DRS_DEBUGMONITORTOKEN]          = D3DDMT_ENABLE;
     rs[D3DRS_POSITIONDEGREE]             = D3DDEGREE_CUBIC;
